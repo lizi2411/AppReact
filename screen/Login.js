@@ -12,37 +12,79 @@ import { Container, View, Content, Card, CardItem, Text, Body, Button, Item, Lab
 
 import {
   StyleSheet,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert
 } from 'react-native';
+import api from '../data/api';
 
 
 
 class Login extends Component {
-  
-  constructor(props) {
+  constructor(props){
     super(props);
-    this.state = {usuario: '', contra: ''};
+    this.state = {
+      username : '',
+      pass : ''
+    
+    }
   }
-  state = {showIndicator:false}
-  onButtonPress = () => {
-      this.setState({
-      showIndicator: true
-      }),this.props.navigation.navigate('Principal',{contra: this.state.contra, usuario: this.state.usuario})};
+  login = async () => {
+    let validarlog = await api.validarLog(this.state.username,this.state.pass)
+    if(validarlog.status == 1){
+      this.props.navigation.navigate('Principal');
+    }
+    else
+    {
+      Alert.alert('Usuario o contraseña invalidos ');
 
+    }
+  }
+    userLogin = () =>{ 
+
+      const {username} = this.state;
+      const {pass} = this.state;
+ 
+  
+      fetch('http://192.168.43.207/iot/data/login.php',{ 
+        method: 'post',
+        header: {
+          'Accept': 'application/json',
+          'Content-type': 'application/json'
+        },
+        body:JSON.stringify({
+          pUsuario: username,
+          pPass: pass
+          
+        })
+  
+      })
+      .then((response) => response.text())
+        .then((responseData) =>{
+         
+          Alert.alert("Bienvenido")
+          if(responseData == 1){
+            this.props.navigation.navigate('Principal');
+          }
+          else
+          {
+            Alert.alert('Usuario o contraseña invalidos ');
+      
+          }
+          
+        
+        })
+        .catch((error)=>{
+            console.error(error);
+        
+        });
+        
+    }
+    
+  
+ 
   render(){
   const navegar = this.props.navigation;
-  if(this.state.showIndicator){
-      return(
-          <View style={misEstilos.content}>
-              
-              <ActivityIndicator size="large" color="#FF0000"/>
-              
-          </View>
-
-      );
-    
-  }
-  else{
+ 
     return (
         <>
         
@@ -58,8 +100,7 @@ class Login extends Component {
                         <Icon type = 'FontAwesome' name = 'user-circle-o'></Icon>
                         <Input type="text" 
                                 placeholder="Usuario"
-                                value= {this.state.usuario}
-                                onChangeText= {(usuario) => this.setState({usuario})}
+                                onChangeText= {(username) => this.setState({username})}
                         />
 
                     </Item>
@@ -67,8 +108,7 @@ class Login extends Component {
                     <Item lineLabel>
                         <Icon type = 'Ionicons' name = 'ios-lock'></Icon>
                         <Input type="text" placeholder = 'Constraseña' 
-                            value= {this.state.contra}
-                            onChangeText= {(contra) => this.setState({contra})}/>
+                            onChangeText= {(pass) => this.setState({pass})}/>
                     </Item>
                 </Body>
                 </CardItem>
@@ -80,7 +120,7 @@ class Login extends Component {
                 </CardItem>
                 <CardItem footer bordered style = {misEstilos.pie}>
                 
-                <Button primary onPress={this.onButtonPress} ><Text> Iniciar Sesión </Text></Button>
+                <Button primary onPress={this.userLogin} ><Text> Iniciar Sesión </Text></Button>
                 </CardItem>
             </Card>
             </Content>
@@ -90,8 +130,8 @@ class Login extends Component {
         </>
     );
     }
-    }
-}
+  }
+
 
 
 const misEstilos = StyleSheet.create({

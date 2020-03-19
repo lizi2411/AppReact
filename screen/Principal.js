@@ -52,9 +52,7 @@ class Perfil extends Component {
     const navegar = this.props.navigation;
     return (
       <View>
-        <Text >Hola: {this.props.route.params.usuario}</Text>
-        <Text >Tu contraseña es :{this.props.route.params.contra}</Text>
-    
+       
         <FlatList
             data={this.state.dataSource}
     renderItem = {({item}) => <Text>Pelicula:{item.title},Año de lanzamiento:{item.releaseYear}</Text>}
